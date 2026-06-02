@@ -165,6 +165,7 @@ input:focus {
 
 .primary-btn,
 .secondary-btn,
+.secondary-link,
 .generated-link button {
   border-radius: 12px;
   padding: 13px 18px;
@@ -185,6 +186,29 @@ input:focus {
   background: rgba(239, 91, 91, 0.14);
   color: #ffd5d5;
   border: 1px solid rgba(239, 91, 91, 0.32);
+}
+
+.prejoin-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.secondary-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 49px;
+  text-decoration: none;
+  background: var(--panel-strong);
+  border: 1px solid var(--line);
+  color: var(--text);
+}
+
+.secondary-link:hover {
+  border-color: var(--primary);
 }
 
 .generated-link {

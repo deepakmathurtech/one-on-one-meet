@@ -15,6 +15,7 @@ const prejoinTitle = $("#prejoin-title");
 const avatar = $("#avatar");
 const prejoin = $("#prejoin");
 const joinRoom = $("#join-room");
+const openRoom = $("#open-room");
 const leaveRoom = $("#leave-room");
 const roomFrameWrap = $("#room-frame-wrap");
 const roomFrame = $("#room-frame");
@@ -38,8 +39,7 @@ function buildMeetUrl({ room, name, title }) {
   const displayName = encodeURIComponent(cleanText(name, "Guest"));
   const appName = encodeURIComponent(cleanText(title, "One-on-One Meet"));
 
-  return [
-    `https://meet.jit.si/${safeRoom}`,
+  const config = [
     `#userInfo.displayName="${displayName}"`,
     "config.prejoinPageEnabled=false",
     "config.disableDeepLinking=true",
@@ -49,7 +49,11 @@ function buildMeetUrl({ room, name, title }) {
     "interfaceConfig.SHOW_JITSI_WATERMARK=false",
     "interfaceConfig.SHOW_WATERMARK_FOR_GUESTS=false",
     `interfaceConfig.APP_NAME=${appName}`,
-  ].join("&");
+  ]
+    .join("&")
+    .replace(/^#/, "");
+
+  return `https://meet.jit.si/${safeRoom}#${config}`;
 }
 
 function buildShareLink({ room, name, title }) {
@@ -74,6 +78,7 @@ function showMeetingFromParams() {
   meetingSubtitle.textContent = `Room: ${cleanRoom(room)}. Joining as ${name}.`;
   prejoinTitle.textContent = `Ready, ${name}?`;
   avatar.textContent = name.charAt(0).toUpperCase();
+  openRoom.href = buildMeetUrl({ room, name, title });
 
   joinRoom.onclick = () => {
     roomFrame.src = buildMeetUrl({ room, name, title });
