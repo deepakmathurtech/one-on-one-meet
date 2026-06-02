@@ -3,34 +3,88 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>One-on-One Meeting</title>
+    <title>One-on-One Meet - Free No-Login Video Calling</title>
     <meta
       name="description"
-      content="A no-login one-on-one meeting room powered by Jitsi Meet."
+      content="Create a private one-on-one video call link with no login, no Firebase, and no backend. A free WebRTC meeting tool that works well on GitHub Pages."
+    />
+    <meta
+      name="keywords"
+      content="one on one meeting, free video call, no login meeting, WebRTC call, GitHub Pages meeting app, private meeting link"
+    />
+    <meta name="robots" content="index, follow" />
+    <meta name="theme-color" content="#0b1220" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="One-on-One Meet" />
+    <meta
+      property="og:description"
+      content="A free no-login one-on-one video calling page powered by browser WebRTC."
+    />
+    <meta property="og:site_name" content="One-on-One Meet" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="One-on-One Meet" />
+    <meta
+      name="twitter:description"
+      content="Start a private 1:1 video call from a simple shareable link."
     />
     <link rel="stylesheet" href="./styles.css" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "One-on-One Meet",
+        "applicationCategory": "CommunicationApplication",
+        "operatingSystem": "Any",
+        "description": "A free no-login one-on-one WebRTC video calling page for static hosting.",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        }
+      }
+    </script>
   </head>
   <body>
     <main class="app-shell">
       <header class="topbar">
         <div class="brand">
           <span class="brand-mark">1:1</span>
-          <span>One-on-One Meet</span>
+          <div>
+            <span>One-on-One Meet</span>
+            <small>Free browser video calling</small>
+          </div>
         </div>
-        <span class="access-pill">No login required</span>
+        <nav class="top-actions" aria-label="App highlights">
+          <span class="access-pill">No login</span>
+          <span class="access-pill">No Firebase</span>
+          <span class="access-pill">GitHub Pages ready</span>
+        </nav>
       </header>
 
       <section class="hero" id="setup-panel">
         <div class="hero-copy">
           <p class="eyebrow">Private meeting link</p>
-          <h1>Start a one-on-one call from a simple link.</h1>
+          <h1>Start a one-on-one video call from a simple link.</h1>
           <p class="lede">
             Create a room name, share the generated URL, and both people can join
-            the same video meeting without signing in.
+            the same video meeting without signing in or connecting a database.
           </p>
+          <div class="feature-strip" aria-label="Features">
+            <span>Direct browser media</span>
+            <span>Camera and mic controls</span>
+            <span>Shareable room URLs</span>
+          </div>
+          <div class="recent-rooms" id="recent-rooms" hidden>
+            <p class="mini-title">Recent rooms</p>
+            <div id="recent-room-list"></div>
+          </div>
         </div>
 
         <form class="link-card" id="link-form">
+          <div class="form-heading">
+            <p class="eyebrow">Create link</p>
+            <h2>Meeting details</h2>
+          </div>
           <label>
             Room name
             <input
@@ -48,7 +102,7 @@
               id="name-input"
               name="name"
               type="text"
-              placeholder="Guest"
+              placeholder="Your name"
               autocomplete="name"
             />
           </label>
@@ -67,7 +121,10 @@
 
           <div class="generated-link" id="generated-link" hidden>
             <span id="generated-url"></span>
-            <button type="button" id="copy-link">Copy</button>
+            <div class="generated-actions">
+              <button type="button" id="copy-link">Copy</button>
+              <button type="button" id="open-link">Open</button>
+            </div>
           </div>
         </form>
       </section>
@@ -79,7 +136,10 @@
             <h1 id="meeting-title">One-on-One Meeting</h1>
             <p id="meeting-subtitle">Join when you are ready.</p>
           </div>
-          <button class="secondary-btn" id="leave-room" type="button">End Call</button>
+          <div class="meeting-actions">
+            <button class="ghost-btn" id="share-room" type="button">Share Link</button>
+            <button class="secondary-btn" id="leave-room" type="button">End Call</button>
+          </div>
         </div>
 
         <div class="prejoin" id="prejoin">
@@ -91,12 +151,14 @@
           </p>
           <div class="prejoin-actions">
             <button class="primary-btn" id="join-room" type="button">Join Video Call</button>
+            <button class="ghost-btn" id="copy-room-before-join" type="button">Copy Link</button>
           </div>
         </div>
 
         <div class="call-room" id="call-room" hidden>
           <div class="status-bar">
             <span id="connection-status">Starting room...</span>
+            <span id="call-timer">00:00</span>
             <span id="role-status"></span>
           </div>
           <div class="video-grid">
@@ -109,11 +171,17 @@
               <span class="video-label">You</span>
             </div>
           </div>
+          <div class="control-bar" aria-label="Call controls">
+            <button class="control-btn" id="toggle-mic" type="button">Mic On</button>
+            <button class="control-btn" id="toggle-camera" type="button">Camera On</button>
+            <button class="control-btn" id="copy-room-during-call" type="button">Copy Link</button>
+            <button class="control-btn danger-control" id="leave-room-bottom" type="button">Leave</button>
+          </div>
         </div>
       </section>
     </main>
 
-    <script src="./peerjs.min.js"></script>
-    <script src="./app.js"></script>
+    <script defer src="./peerjs.min.js"></script>
+    <script defer src="./app.js"></script>
   </body>
 </html>

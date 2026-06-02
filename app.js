@@ -6,6 +6,7 @@ const linkForm = $("#link-form");
 const generatedLink = $("#generated-link");
 const generatedUrl = $("#generated-url");
 const copyLink = $("#copy-link");
+const openLink = $("#open-link");
 const roomInput = $("#room-input");
 const nameInput = $("#name-input");
 const titleInput = $("#title-input");
@@ -16,17 +17,30 @@ const avatar = $("#avatar");
 const prejoin = $("#prejoin");
 const joinRoom = $("#join-room");
 const leaveRoom = $("#leave-room");
+const leaveRoomBottom = $("#leave-room-bottom");
 const callRoom = $("#call-room");
 const localVideo = $("#local-video");
 const remoteVideo = $("#remote-video");
 const connectionStatus = $("#connection-status");
 const roleStatus = $("#role-status");
+const shareRoom = $("#share-room");
+const copyRoomBeforeJoin = $("#copy-room-before-join");
+const copyRoomDuringCall = $("#copy-room-during-call");
+const toggleMic = $("#toggle-mic");
+const toggleCamera = $("#toggle-camera");
+const callTimer = $("#call-timer");
+const recentRooms = $("#recent-rooms");
+const recentRoomList = $("#recent-room-list");
 
 const params = new URLSearchParams(window.location.search);
+const recentKey = "one-on-one-meet-recent-rooms";
 let peer = null;
 let localStream = null;
 let activeCall = null;
 let retryTimer = null;
+let timerInterval = null;
+let callStartedAt = null;
+let currentShareLink = window.location.href;
 
 function cleanRoom(value) {
   return (value || "one-on-one-room")
@@ -53,8 +67,75 @@ function setStatus(message) {
   connectionStatus.textContent = message;
 }
 
+function setButtonCopied(button, text = "Copied") {
+  const original = button.textContent;
+  button.textContent = text;
+  window.setTimeout(() => {
+    button.textContent = original;
+  }, 1300);
+}
+
+async function copyText(text, button) {
+  if (!text) return;
+
+  try {
+    await navigator.clipboard.writeText(text);
+    if (button) setButtonCopied(button);
+  } catch {
+    window.prompt("Copy this meeting link:", text);
+  }
+}
+
+async function shareOrCopy(button) {
+  const shareData = {
+    title: meetingTitle.textContent || "One-on-One Meet",
+    text: "Join this one-on-one video call.",
+    url: currentShareLink,
+  };
+
+  if (navigator.share) {
+    try {
+      await navigator.share(shareData);
+      return;
+    } catch {
+      // Fall back to clipboard when native share is cancelled or unavailable.
+    }
+  }
+
+  await copyText(currentShareLink, button);
+}
+
+function readRecentRooms() {
+  try {
+    return JSON.parse(localStorage.getItem(recentKey) || "[]");
+  } catch {
+    return [];
+  }
+}
+
+function saveRecentRoom(link, title) {
+  const current = readRecentRooms().filter((item) => item.link !== link);
+  const next = [{ link, title, savedAt: Date.now() }, ...current].slice(0, 5);
+  localStorage.setItem(recentKey, JSON.stringify(next));
+  renderRecentRooms();
+}
+
+function renderRecentRooms() {
+  const rooms = readRecentRooms();
+  recentRooms.hidden = rooms.length === 0;
+  recentRoomList.innerHTML = "";
+
+  rooms.forEach((room) => {
+    const anchor = document.createElement("a");
+    anchor.href = room.link;
+    anchor.textContent = room.title || "One-on-One Room";
+    recentRoomList.append(anchor);
+  });
+}
+
 function setRemoteStream(stream) {
   remoteVideo.srcObject = stream;
+  startTimer();
   setStatus("Connected. You are in the one-on-one call.");
 }
 
@@ -66,11 +147,42 @@ async function getMedia() {
     audio: true,
   });
   localVideo.srcObject = localStream;
+  updateTrackButtons();
   return localStream;
+}
+
+function updateTrackButtons() {
+  const audioTrack = localStream?.getAudioTracks()[0];
+  const videoTrack = localStream?.getVideoTracks()[0];
+  toggleMic.textContent = audioTrack?.enabled === false ? "Mic Off" : "Mic On";
+  toggleCamera.textContent = videoTrack?.enabled === false ? "Camera Off" : "Camera On";
 }
 
 function randomId() {
   return Math.random().toString(36).slice(2, 10);
+}
+
+function formatTime(ms) {
+  const totalSeconds = Math.floor(ms / 1000);
+  const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, "0");
+  const seconds = String(totalSeconds % 60).padStart(2, "0");
+  return `${minutes}:${seconds}`;
+}
+
+function startTimer() {
+  if (timerInterval) return;
+  callStartedAt = Date.now();
+  callTimer.textContent = "00:00";
+  timerInterval = window.setInterval(() => {
+    callTimer.textContent = formatTime(Date.now() - callStartedAt);
+  }, 1000);
+}
+
+function stopTimer() {
+  if (timerInterval) window.clearInterval(timerInterval);
+  timerInterval = null;
+  callStartedAt = null;
+  callTimer.textContent = "00:00";
 }
 
 function stopCall() {
@@ -86,8 +198,10 @@ function stopCall() {
   localStream = null;
   localVideo.srcObject = null;
   remoteVideo.srcObject = null;
+  roleStatus.textContent = "";
   callRoom.hidden = true;
   prejoin.hidden = false;
+  stopTimer();
   setStatus("Call ended.");
 }
 
@@ -98,7 +212,12 @@ function answerIncomingCalls(stream) {
     setStatus("Answering incoming guest...");
     call.answer(stream);
     call.on("stream", setRemoteStream);
-    call.on("close", () => setStatus("The other person left the call."));
+    call.on("close", () => {
+      activeCall = null;
+      remoteVideo.srcObject = null;
+      stopTimer();
+      setStatus("The other person left the call.");
+    });
   });
 }
 
@@ -112,6 +231,8 @@ function callHost(room, stream) {
   call.on("stream", setRemoteStream);
   call.on("close", () => {
     activeCall = null;
+    remoteVideo.srcObject = null;
+    stopTimer();
     setStatus("The other person left the call.");
   });
   call.on("error", () => {
@@ -128,8 +249,8 @@ function callHost(room, stream) {
   }, 3000);
 }
 
-function createGuestPeer(room, stream) {
-  peer = new Peer(`${room}-guest-${randomId()}`);
+function createGuestPeer(room, stream, PeerCtor) {
+  peer = new PeerCtor(`${room}-guest-${randomId()}`);
   roleStatus.textContent = "Guest";
 
   peer.on("open", () => callHost(room, stream));
@@ -138,9 +259,9 @@ function createGuestPeer(room, stream) {
   });
 }
 
-function createHostPeer(room, stream) {
+function createHostPeer(room, stream, PeerCtor) {
   const hostId = `${room}-host`;
-  peer = new Peer(hostId);
+  peer = new PeerCtor(hostId);
   roleStatus.textContent = "Host";
 
   peer.on("open", () => {
@@ -151,7 +272,7 @@ function createHostPeer(room, stream) {
   peer.on("error", (error) => {
     if (error.type === "unavailable-id") {
       setStatus("Host is already waiting. Joining as guest...");
-      createGuestPeer(room, stream);
+      createGuestPeer(room, stream, PeerCtor);
       return;
     }
     setStatus(`Connection error: ${error.type || "unknown"}`);
@@ -159,6 +280,13 @@ function createHostPeer(room, stream) {
 }
 
 async function startRoom(room) {
+  const PeerCtor = window.Peer || window.peerjs?.Peer;
+
+  if (!PeerCtor) {
+    alert("The calling library did not load. Please refresh the page and try again.");
+    return;
+  }
+
   try {
     prejoin.hidden = true;
     callRoom.hidden = false;
@@ -166,8 +294,8 @@ async function startRoom(room) {
 
     const stream = await getMedia();
     setStatus("Starting connection...");
-    createHostPeer(room, stream);
-  } catch (error) {
+    createHostPeer(room, stream, PeerCtor);
+  } catch {
     prejoin.hidden = false;
     callRoom.hidden = true;
     setStatus("Could not access camera or microphone.");
@@ -181,6 +309,7 @@ function showMeetingFromParams() {
 
   const name = cleanText(params.get("name"), "Guest");
   const title = cleanText(params.get("title"), "One-on-One Meeting");
+  currentShareLink = buildShareLink({ room, name, title });
 
   setupPanel.hidden = true;
   meetingPanel.hidden = false;
@@ -188,7 +317,9 @@ function showMeetingFromParams() {
   meetingSubtitle.textContent = `Room: ${cleanRoom(room)}. Joining as ${name}.`;
   prejoinTitle.textContent = `Ready, ${name}?`;
   avatar.textContent = name.charAt(0).toUpperCase();
+  document.title = `${title} - One-on-One Meet`;
 
+  saveRecentRoom(currentShareLink, title);
   joinRoom.onclick = () => startRoom(cleanRoom(room));
 }
 
@@ -199,26 +330,38 @@ linkForm.addEventListener("submit", (event) => {
     name: nameInput.value,
     title: titleInput.value,
   });
+  const title = cleanText(titleInput.value, "One-on-One Meet");
+  currentShareLink = shareLink;
   generatedUrl.textContent = shareLink;
   generatedLink.hidden = false;
+  saveRecentRoom(shareLink, title);
 });
 
-copyLink.addEventListener("click", async () => {
-  const text = generatedUrl.textContent;
-  if (!text) return;
-
-  try {
-    await navigator.clipboard.writeText(text);
-    copyLink.textContent = "Copied";
-    setTimeout(() => {
-      copyLink.textContent = "Copy";
-    }, 1200);
-  } catch {
-    window.prompt("Copy this meeting link:", text);
-  }
+copyLink.addEventListener("click", () => copyText(generatedUrl.textContent, copyLink));
+openLink.addEventListener("click", () => {
+  if (generatedUrl.textContent) window.location.href = generatedUrl.textContent;
 });
-
+shareRoom.addEventListener("click", () => shareOrCopy(shareRoom));
+copyRoomBeforeJoin.addEventListener("click", () => copyText(currentShareLink, copyRoomBeforeJoin));
+copyRoomDuringCall.addEventListener("click", () => copyText(currentShareLink, copyRoomDuringCall));
 leaveRoom.addEventListener("click", stopCall);
+leaveRoomBottom.addEventListener("click", stopCall);
+
+toggleMic.addEventListener("click", () => {
+  const track = localStream?.getAudioTracks()[0];
+  if (!track) return;
+  track.enabled = !track.enabled;
+  updateTrackButtons();
+});
+
+toggleCamera.addEventListener("click", () => {
+  const track = localStream?.getVideoTracks()[0];
+  if (!track) return;
+  track.enabled = !track.enabled;
+  updateTrackButtons();
+});
+
 window.addEventListener("beforeunload", stopCall);
 
+renderRecentRooms();
 showMeetingFromParams();

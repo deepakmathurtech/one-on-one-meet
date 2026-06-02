@@ -1,15 +1,18 @@
 :root {
   color-scheme: dark;
-  --bg: #08111f;
-  --panel: #0f1b2d;
-  --panel-strong: #14243b;
-  --text: #f7fbff;
-  --muted: #9fb0c7;
-  --line: #253650;
-  --primary: #21c7a8;
-  --primary-dark: #10977f;
-  --danger: #ef5b5b;
-  --shadow: 0 24px 70px rgba(0, 0, 0, 0.35);
+  --bg: #0b1220;
+  --surface: #101827;
+  --surface-strong: #172235;
+  --surface-soft: #1d2b40;
+  --text: #f8fbff;
+  --muted: #a6b3c5;
+  --line: #2b3a52;
+  --primary: #22d3ee;
+  --primary-strong: #0ea5e9;
+  --accent: #a3e635;
+  --danger: #fb7185;
+  --warning: #facc15;
+  --shadow: 0 28px 80px rgba(0, 0, 0, 0.38);
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
@@ -17,12 +20,16 @@
   box-sizing: border-box;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   margin: 0;
   min-height: 100vh;
   background:
-    radial-gradient(circle at top left, rgba(33, 199, 168, 0.18), transparent 28rem),
-    linear-gradient(135deg, #08111f 0%, #10192b 55%, #07101e 100%);
+    linear-gradient(135deg, rgba(34, 211, 238, 0.12), transparent 34%),
+    linear-gradient(160deg, #0b1220 0%, #101827 58%, #0f172a 100%);
   color: var(--text);
 }
 
@@ -36,100 +43,163 @@ button {
 }
 
 .app-shell {
-  width: min(1180px, calc(100vw - 32px));
+  width: min(1200px, calc(100vw - 32px));
   min-height: 100vh;
   margin: 0 auto;
-  padding: 24px 0 32px;
+  padding: 18px 0 28px;
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 24px;
 }
 
 .topbar,
-.meeting-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-}
-
+.meeting-header,
+.meeting-actions,
+.top-actions,
 .brand,
 .access-pill,
 .eyebrow,
 .generated-link,
-.meeting-subtitle {
-  display: inline-flex;
+.generated-actions,
+.feature-strip,
+.status-bar,
+.control-bar {
+  display: flex;
   align-items: center;
+}
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 0;
+  backdrop-filter: blur(18px);
 }
 
 .brand {
   gap: 12px;
-  font-weight: 800;
+  font-weight: 850;
+}
+
+.brand small {
+  display: block;
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 650;
 }
 
 .brand-mark {
-  width: 42px;
-  height: 42px;
+  width: 44px;
+  height: 44px;
   display: grid;
   place-items: center;
-  border-radius: 12px;
-  background: var(--primary);
-  color: #062319;
-  box-shadow: 0 12px 28px rgba(33, 199, 168, 0.25);
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  color: #05131f;
+  box-shadow: 0 14px 30px rgba(34, 211, 238, 0.24);
+}
+
+.top-actions {
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .access-pill {
   border: 1px solid var(--line);
   border-radius: 999px;
-  padding: 9px 14px;
+  padding: 8px 12px;
   color: var(--muted);
-  background: rgba(15, 27, 45, 0.72);
+  background: rgba(16, 24, 39, 0.78);
+  font-size: 0.9rem;
 }
 
 .hero {
   flex: 1;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 430px;
-  gap: 32px;
+  grid-template-columns: minmax(0, 1fr) minmax(340px, 430px);
+  gap: 34px;
   align-items: center;
 }
 
 .hero-copy h1,
 .meeting-header h1 {
   margin: 0;
-  font-size: clamp(2.35rem, 6vw, 5.5rem);
-  line-height: 0.98;
+  max-width: 850px;
+  font-size: clamp(2.5rem, 6vw, 5.45rem);
+  line-height: 1;
   letter-spacing: 0;
 }
 
 .meeting-header h1 {
-  font-size: clamp(2rem, 4vw, 3.4rem);
+  font-size: clamp(2rem, 4vw, 3.2rem);
 }
 
 .eyebrow {
   gap: 8px;
   color: var(--primary);
-  font-weight: 750;
+  font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  font-size: 0.78rem;
-  margin: 0 0 14px;
+  font-size: 0.75rem;
+  margin: 0 0 12px;
 }
 
 .lede,
 .meeting-header p,
 .prejoin p {
   color: var(--muted);
-  font-size: 1.06rem;
+  font-size: 1.04rem;
   line-height: 1.7;
   max-width: 650px;
 }
 
+.feature-strip {
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.feature-strip span,
+.recent-room-list a,
+.recent-rooms a {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 9px 12px;
+  background: rgba(23, 34, 53, 0.72);
+  color: var(--text);
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.recent-rooms {
+  margin-top: 28px;
+}
+
+.mini-title {
+  margin: 0 0 10px;
+  color: var(--muted);
+  font-size: 0.88rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+#recent-room-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
 .link-card,
 .prejoin {
-  background: rgba(15, 27, 45, 0.92);
+  background: rgba(16, 24, 39, 0.92);
   border: 1px solid var(--line);
-  border-radius: 18px;
+  border-radius: 8px;
   box-shadow: var(--shadow);
 }
 
@@ -137,7 +207,12 @@ button {
   padding: 24px;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 17px;
+}
+
+.form-heading h2 {
+  margin: 0;
+  font-size: 1.45rem;
 }
 
 label {
@@ -145,61 +220,82 @@ label {
   flex-direction: column;
   gap: 8px;
   color: var(--muted);
-  font-weight: 650;
+  font-weight: 700;
 }
 
 input {
   width: 100%;
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: 8px;
   padding: 14px 15px;
-  background: #0a1424;
+  background: #0b1220;
   color: var(--text);
   outline: none;
 }
 
 input:focus {
   border-color: var(--primary);
-  box-shadow: 0 0 0 4px rgba(33, 199, 168, 0.14);
+  box-shadow: 0 0 0 4px rgba(34, 211, 238, 0.15);
 }
 
 .primary-btn,
 .secondary-btn,
-.generated-link button {
-  border-radius: 12px;
-  padding: 13px 18px;
-  font-weight: 800;
+.ghost-btn,
+.generated-link button,
+.control-btn {
+  min-height: 44px;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-weight: 850;
   cursor: pointer;
+  transition: transform 160ms ease, background 160ms ease, border-color 160ms ease;
 }
 
 .primary-btn {
-  background: var(--primary);
-  color: #04241b;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  color: #05131f;
 }
 
-.primary-btn:hover {
-  background: #31dabd;
+.primary-btn:hover,
+.secondary-btn:hover,
+.ghost-btn:hover,
+.generated-link button:hover,
+.control-btn:hover {
+  transform: translateY(-1px);
 }
 
 .secondary-btn {
-  background: rgba(239, 91, 91, 0.14);
-  color: #ffd5d5;
-  border: 1px solid rgba(239, 91, 91, 0.32);
+  background: rgba(251, 113, 133, 0.14);
+  color: #ffe1e6;
+  border: 1px solid rgba(251, 113, 133, 0.38);
 }
 
-.prejoin-actions {
+.ghost-btn,
+.generated-link button,
+.control-btn {
+  background: rgba(23, 34, 53, 0.9);
+  color: var(--text);
+  border: 1px solid var(--line);
+}
+
+.danger-control {
+  color: #ffe1e6;
+  border-color: rgba(251, 113, 133, 0.42);
+}
+
+.prejoin-actions,
+.meeting-actions {
   display: flex;
   align-items: center;
-  justify-content: center;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 10px;
 }
 
 .generated-link {
   gap: 10px;
   padding: 10px;
-  border-radius: 12px;
-  background: #08101d;
+  border-radius: 8px;
+  background: #0b1220;
   border: 1px solid var(--line);
 }
 
@@ -212,16 +308,21 @@ input:focus {
   flex: 1;
 }
 
-.generated-link button {
-  background: var(--panel-strong);
-  color: var(--text);
+.generated-actions {
+  gap: 8px;
+  flex-shrink: 0;
 }
 
 .meeting {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 22px;
+  gap: 18px;
+}
+
+.meeting-header {
+  justify-content: space-between;
+  gap: 18px;
 }
 
 .prejoin {
@@ -236,15 +337,15 @@ input:focus {
 }
 
 .avatar {
-  width: 90px;
-  height: 90px;
+  width: 92px;
+  height: 92px;
   display: grid;
   place-items: center;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--primary), #70e7d3);
-  color: #052219;
-  font-size: 2.4rem;
-  font-weight: 900;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  color: #05131f;
+  font-size: 2.45rem;
+  font-weight: 950;
 }
 
 .prejoin h2 {
@@ -261,36 +362,37 @@ input:focus {
 }
 
 .status-bar {
-  display: flex;
-  align-items: center;
   justify-content: space-between;
   gap: 12px;
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: 8px;
   padding: 12px 14px;
-  background: rgba(15, 27, 45, 0.9);
+  background: rgba(16, 24, 39, 0.9);
   color: var(--muted);
 }
 
+#call-timer,
 #role-status {
   color: var(--primary);
-  font-weight: 800;
+  font-weight: 850;
 }
 
 .video-grid {
   flex: 1;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 320px;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 330px);
   gap: 12px;
-  min-height: 620px;
+  min-height: 590px;
 }
 
 .video-tile {
   position: relative;
   border: 1px solid var(--line);
-  border-radius: 18px;
+  border-radius: 8px;
   overflow: hidden;
-  background: #000;
+  background:
+    linear-gradient(135deg, rgba(34, 211, 238, 0.16), transparent),
+    #020617;
   box-shadow: var(--shadow);
 }
 
@@ -312,10 +414,20 @@ video {
   bottom: 12px;
   border-radius: 999px;
   padding: 7px 10px;
-  background: rgba(0, 0, 0, 0.58);
+  background: rgba(2, 6, 23, 0.72);
   color: var(--text);
-  font-weight: 800;
+  font-weight: 850;
   font-size: 0.8rem;
+}
+
+.control-bar {
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(16, 24, 39, 0.86);
 }
 
 [hidden] {
@@ -323,6 +435,10 @@ video {
 }
 
 @media (max-width: 860px) {
+  .app-shell {
+    width: min(100% - 20px, 1200px);
+  }
+
   .hero {
     grid-template-columns: 1fr;
     align-items: start;
@@ -334,15 +450,50 @@ video {
     flex-direction: column;
   }
 
+  .top-actions {
+    justify-content: flex-start;
+  }
+
   .call-room {
     min-height: 560px;
   }
 
   .video-grid {
     grid-template-columns: 1fr;
+    min-height: 520px;
   }
 
   .video-tile--local {
-    min-height: 260px;
+    min-height: 240px;
+  }
+
+  .generated-link {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .generated-actions {
+    width: 100%;
+  }
+
+  .generated-actions button {
+    flex: 1;
+  }
+}
+
+@media (max-width: 520px) {
+  .hero-copy h1 {
+    font-size: 2.45rem;
+  }
+
+  .link-card,
+  .prejoin {
+    padding: 18px;
+  }
+
+  .control-btn,
+  .meeting-actions button,
+  .prejoin-actions button {
+    width: 100%;
   }
 }
