@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>One-on-One Meeting</title>
+    <meta
+      name="description"
+      content="A no-login one-on-one meeting room powered by Jitsi Meet."
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="topbar">
+        <div class="brand">
+          <span class="brand-mark">1:1</span>
+          <span>One-on-One Meet</span>
+        </div>
+        <span class="access-pill">No login required</span>
+      </header>
+
+      <section class="hero" id="setup-panel">
+        <div class="hero-copy">
+          <p class="eyebrow">Private meeting link</p>
+          <h1>Start a one-on-one call from a simple link.</h1>
+          <p class="lede">
+            Create a room name, share the generated URL, and both people can join
+            the same video meeting without signing in.
+          </p>
+        </div>
+
+        <form class="link-card" id="link-form">
+          <label>
+            Room name
+            <input
+              id="room-input"
+              name="room"
+              type="text"
+              placeholder="career-clarity-call"
+              autocomplete="off"
+              required
+            />
+          </label>
+          <label>
+            Your display name
+            <input
+              id="name-input"
+              name="name"
+              type="text"
+              placeholder="Guest"
+              autocomplete="name"
+            />
+          </label>
+          <label>
+            Meeting title
+            <input
+              id="title-input"
+              name="title"
+              type="text"
+              placeholder="LifeFundies 1-on-1"
+              autocomplete="off"
+            />
+          </label>
+
+          <button class="primary-btn" type="submit">Create Meeting Link</button>
+
+          <div class="generated-link" id="generated-link" hidden>
+            <span id="generated-url"></span>
+            <button type="button" id="copy-link">Copy</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="meeting" id="meeting-panel" hidden>
+        <div class="meeting-header">
+          <div>
+            <p class="eyebrow">Live room</p>
+            <h1 id="meeting-title">One-on-One Meeting</h1>
+            <p id="meeting-subtitle">Join when you are ready.</p>
+          </div>
+          <button class="secondary-btn" id="leave-room" type="button">Leave</button>
+        </div>
+
+        <div class="prejoin" id="prejoin">
+          <div class="avatar" id="avatar">G</div>
+          <h2 id="prejoin-title">Ready to join?</h2>
+          <p>
+            This call opens inside your browser. Camera and microphone permissions
+            are requested only when you join.
+          </p>
+          <button class="primary-btn" id="join-room" type="button">Join Video Call</button>
+        </div>
+
+        <div class="room-frame-wrap" id="room-frame-wrap" hidden>
+          <iframe
+            id="room-frame"
+            title="One-on-one video meeting"
+            allow="camera *; microphone *; fullscreen *; display-capture *; autoplay *"
+            allowfullscreen
+          ></iframe>
+        </div>
+      </section>
+    </main>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
