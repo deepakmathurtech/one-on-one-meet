@@ -165,7 +165,6 @@ input:focus {
 
 .primary-btn,
 .secondary-btn,
-.secondary-link,
 .generated-link button {
   border-radius: 12px;
   padding: 13px 18px;
@@ -194,21 +193,6 @@ input:focus {
   justify-content: center;
   flex-wrap: wrap;
   gap: 12px;
-}
-
-.secondary-link {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 49px;
-  text-decoration: none;
-  background: var(--panel-strong);
-  border: 1px solid var(--line);
-  color: var(--text);
-}
-
-.secondary-link:hover {
-  border-color: var(--primary);
 }
 
 .generated-link {
@@ -268,9 +252,41 @@ input:focus {
   font-size: clamp(1.8rem, 4vw, 3rem);
 }
 
-.room-frame-wrap {
+.call-room {
   flex: 1;
   min-height: 680px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 12px 14px;
+  background: rgba(15, 27, 45, 0.9);
+  color: var(--muted);
+}
+
+#role-status {
+  color: var(--primary);
+  font-weight: 800;
+}
+
+.video-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 12px;
+  min-height: 620px;
+}
+
+.video-tile {
+  position: relative;
   border: 1px solid var(--line);
   border-radius: 18px;
   overflow: hidden;
@@ -278,11 +294,28 @@ input:focus {
   box-shadow: var(--shadow);
 }
 
-iframe {
+.video-tile--local {
+  min-height: 220px;
+}
+
+video {
   width: 100%;
   height: 100%;
-  min-height: 680px;
+  min-height: 100%;
+  object-fit: cover;
   border: 0;
+}
+
+.video-label {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  border-radius: 999px;
+  padding: 7px 10px;
+  background: rgba(0, 0, 0, 0.58);
+  color: var(--text);
+  font-weight: 800;
+  font-size: 0.8rem;
 }
 
 [hidden] {
@@ -301,8 +334,15 @@ iframe {
     flex-direction: column;
   }
 
-  .room-frame-wrap,
-  iframe {
+  .call-room {
     min-height: 560px;
+  }
+
+  .video-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .video-tile--local {
+    min-height: 260px;
   }
 }

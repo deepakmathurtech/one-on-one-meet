@@ -79,35 +79,41 @@
             <h1 id="meeting-title">One-on-One Meeting</h1>
             <p id="meeting-subtitle">Join when you are ready.</p>
           </div>
-          <button class="secondary-btn" id="leave-room" type="button">Leave</button>
+          <button class="secondary-btn" id="leave-room" type="button">End Call</button>
         </div>
 
         <div class="prejoin" id="prejoin">
           <div class="avatar" id="avatar">G</div>
           <h2 id="prejoin-title">Ready to join?</h2>
           <p>
-            This call opens inside your browser. Camera and microphone permissions
-            are requested only when you join.
+            This call connects directly between two browsers. Camera and
+            microphone permissions are requested only when you join.
           </p>
           <div class="prejoin-actions">
             <button class="primary-btn" id="join-room" type="button">Join Video Call</button>
-            <a class="secondary-link" id="open-room" href="#" target="_blank" rel="noopener noreferrer">
-              Open in new tab
-            </a>
           </div>
         </div>
 
-        <div class="room-frame-wrap" id="room-frame-wrap" hidden>
-          <iframe
-            id="room-frame"
-            title="One-on-one video meeting"
-            allow="camera *; microphone *; fullscreen *; display-capture *; autoplay *"
-            allowfullscreen
-          ></iframe>
+        <div class="call-room" id="call-room" hidden>
+          <div class="status-bar">
+            <span id="connection-status">Starting room...</span>
+            <span id="role-status"></span>
+          </div>
+          <div class="video-grid">
+            <div class="video-tile">
+              <video id="remote-video" autoplay playsinline></video>
+              <span class="video-label">Remote</span>
+            </div>
+            <div class="video-tile video-tile--local">
+              <video id="local-video" autoplay playsinline muted></video>
+              <span class="video-label">You</span>
+            </div>
+          </div>
         </div>
       </section>
     </main>
 
+    <script src="./peerjs.min.js"></script>
     <script src="./app.js"></script>
   </body>
 </html>
